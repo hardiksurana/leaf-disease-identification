@@ -1,0 +1,4 @@
+{
+	"image": ["static/images/b9.jpg", "static/images/b9.jpg", "static/images/b9.jpg"],
+	"description":"The images above are part of the dataset that has been used to train the AlexNet."
+}
