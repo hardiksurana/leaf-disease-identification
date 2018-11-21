@@ -1,8 +1,57 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<form method=POST enctype=multipart/form-data action="{{ url_for('classify_tomato') }}">
-    <input type=file name=photo>
-    <input type="submit">
-</form>
+
+<div class="container-fluid mt-2">
+	<div class="row">
+			<span class="col-md-2 mb-4">Hello {{ name }}</span>
+	</div>
+
+	<div id="tempDisplay" class="row">
+		<label>Temperature:&nbsp;</label><span id="temp" class="col-md-2 mb-4"></span>
+		<label>Humidity:&nbsp;</label><span id="humidity" class="col-md-2 mb-4"></span>
+		<label>Location:&nbsp;</label><span id="location" class="col-md-2 mb-4"></span>
+		<label>Last Modified:&nbsp;</label><span id="lastmodified" class="col-md-2 mb-4"></span>
+	</div>
+
+	<form method=POST enctype=multipart/form-data action="{{ url_for('classify_tomato') }}">
+	    <input type=file name=photo>
+	    <input type="submit">
+	</form>
+</div>
+
+<div class="container-fluid mt-5">
+	
+
+
+<!-- <div class="container-fluid mt-5"> -->
+	<div class="row" id="text-box">
+		<!-- <span class="col-md-12">Text to be added here</span> -->
+	</div>
+	<div class="row mt-5" id="images-box">
+		<!-- <img src="static/images/b9.jpg" class="col-md-4" style="height: 350px;" /> -->
+		<!-- <img src="static/images/b10.jpg" class="col-md-4" style="height: 350px;"/> -->
+		<!-- <img src="static/images/b11.jpg" class="col-md-4" style="height: 350px;"/> -->
+	</div>
+	<div class="row mt-5" id="links-box">
+		<!-- <a href="#" class="col-md-6">References</a> -->
+		<!-- <a href="#" class="col-md-6 col-md-offset-6">Log Out</a> -->
+	</div>
+	<footer class="row mt-5 mb-2">Agro-based Pvt. Ltd.</footer>
+</div>
+
+
+<script src= {{ url_for("static",filename="js/index.js") }}></script>
+
+
+<!-- <script type="text/javascript" src=""></script> -->
+
+<script type="text/javascript">
+
+// $('#logout').on("click")
+
+	
+
+</script>
+
 {% endblock %}
