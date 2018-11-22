@@ -6,7 +6,6 @@ from keras.utils import np_utils
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ReduceLROnPlateau, CSVLogger,EarlyStopping,ModelCheckpoint
 import pickle
-# import matplotlib.pyplot as plt
 from scipy.misc import imread, imresize
 from numpy.random import permutation
 
@@ -26,17 +25,13 @@ def alexnet():
     
     conv_3 = Conv2D(384, 3,padding='valid',activation='relu',name='conv_3')(padding_2)
     padding_3 = ZeroPadding2D((1,1))(conv_3)
-    conv_4 = Conv2D(384, 3,padding='valid',activation='relu',name='conv_4')(padding_3)
-    padding_4 = ZeroPadding2D((1,1))(conv_4)
-    conv_5 = Conv2D(256, 3,padding='valid',activation='relu',name='conv_5')(padding_4)
+    conv_5 = Conv2D(256, 3,padding='valid',activation='relu',name='conv_4')(padding_3)
     pool_3 = MaxPooling2D((3, 3), strides=(3, 3),name='pool_3')(conv_5)
     
     dense_1 = Flatten(name="flatten")(pool_3)
-    dense_1 = Dense(4096, activation='relu',name='dense_1')(dense_1)
-    dense_2 = Dropout(0.5)(dense_1)
-    dense_2 = Dense(4096, activation='relu',name='dense_2')(dense_2)
-    dense_3 = Dropout(0.5)(dense_2)
-    dense_3 = Dense(10,name='dense_3_new')(dense_3)
+    dense_2 = Dense(4096, activation='relu',name='dense_1')(dense_1)
+    dense_3 = Dropout(0.5)(dense_1)
+    dense_3 = Dense(6, activation='softmax', name='dense_3_new')(dense_3)
 
     model = Model(inputs = input_1,outputs = dense_3)
     return model
@@ -44,8 +39,8 @@ def alexnet():
 model = alexnet()
 model.summary()
 
-train_images = np.load('./data/model_info/train_images_lenet.npy')
-train_labels = np.load('./data/model_info/train_labels_lenet.npy')
+train_images = np.load('./data/model_info/train_images_alexnet.npy')
+train_labels = np.load('./data/model_info/train_labels_alexnet.npy')
 
 # Test pretrained model
 train_images = np.array(train_images)
@@ -53,25 +48,25 @@ train_labels = np.array(train_labels)
 mean = np.mean(train_images,axis=(0,1,2,3))
 std = np.std(train_images,axis=(0,1,2,3))
 train_images = (train_images-mean)/(std+1e-7)
-num_classes = 10
+num_classes = 6
 train_labels = np_utils.to_categorical(train_labels,num_classes)
 
 perm = permutation(len(train_images))
 train_images = train_images[perm]
 train_labels = train_labels[perm]
-val_images = train_images[1:1000]
-val_labels = train_labels[1:1000]
-new_train= train_images[1000:]
-new_labels = train_labels[1000:]
+val_images = train_images[1:400]
+val_labels = train_labels[1:400]
+new_train= train_images[400:]
+new_labels = train_labels[400:]
 
 lr_reducer = ReduceLROnPlateau(factor = np.sqrt(0.1), cooldown=0, patience=2, min_lr=0.5e-6)
 csv_logger = CSVLogger('./data/model_info/Alexnet.csv')
 early_stopper = EarlyStopping(min_delta=0.001,patience=30)
-model_checkpoint = ModelCheckpoint('./data/model_info/Alexnet.hdf5',monitor = 'val_loss', verbose = 1,save_best_only=True)
+model_checkpoint = ModelCheckpoint('./data/model_info/Alexnet.hdf5',monitor = 'val_loss', verbose = 2,save_best_only=True)
 
 
 model.compile(loss='categorical_crossentropy',
-        optimizer="Adam",
+        optimizer='adam',
         metrics=['accuracy'])
 
 datagen = ImageDataGenerator(
@@ -91,12 +86,12 @@ datagen.fit(train_images)
 model.fit_generator(datagen.flow(new_train, new_labels, batch_size=12),
                         steps_per_epoch=train_images.shape[0] // 12,
                         validation_data = (val_images,val_labels),
-                        epochs=2,verbose=1,callbacks = [lr_reducer,early_stopper,csv_logger,model_checkpoint])
+                        epochs=10,verbose=2,callbacks = [lr_reducer,early_stopper,csv_logger,model_checkpoint])
 
 
 model.fit(train_images, train_labels,
               batch_size=12,
-              epochs=2,
+              epochs=10,
               validation_split=0.3,
               shuffle=True,callbacks=[lr_reducer,csv_logger,early_stopper,model_checkpoint])
 
